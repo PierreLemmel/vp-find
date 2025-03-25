@@ -25,7 +25,6 @@ function sendMessage(type, data) {
 }
 
 function dispatchMessage(type, data) {
-    console.log("Received message:", type, data);
 }
 
 const startButton = document.getElementById("startButton");
@@ -71,19 +70,9 @@ canvas.style.display = "none";
 
 let isMouseDown = false;
 
-canvas.addEventListener("mousedown", () => {
-    if (!started) return;
+canvas.addEventListener("mousedown", (event) => {
     isMouseDown = true;
 });
-
-canvas.addEventListener("mouseup", () => {
-    if (!started) return;
-    isMouseDown = false;
-});
-
-function clamp01(value) {
-    return Math.min(Math.max(value, 0), 1);
-}
 
 canvas.addEventListener("mousemove", (event) => {
     if (!started || !isMouseDown) return;
@@ -94,3 +83,22 @@ canvas.addEventListener("mousemove", (event) => {
     sendMessage("UpdatePosition", { x: relX, y: 1 - relY });
     draw(relX, relY);
 });
+
+canvas.addEventListener("mouseup", (event) => {
+    isMouseDown = false;
+})
+
+canvas.addEventListener("touchmove", (event) => {
+    if (!started) return;
+
+    const relX = clamp01((event.touches[0].clientX - canvas.offsetLeft) / canvas.clientWidth);
+    const relY = clamp01((event.touches[0].clientY - canvas.offsetTop) / canvas.clientHeight);
+
+    sendMessage("UpdatePosition", { x: relX, y: 1 - relY });
+    draw(relX, relY);
+});
+
+function clamp01(value) {
+    return Math.min(Math.max(value, 0), 1);
+}
+
